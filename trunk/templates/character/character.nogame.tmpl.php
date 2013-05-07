@@ -1,0 +1,1 @@
+<center>If you don't eat yer meat, you can't have any pudding. How can you have any pudding if you don't eat yer meat? <a href="index.php?editor=main">(Go Join/Create a Game!)</a><br></center>
