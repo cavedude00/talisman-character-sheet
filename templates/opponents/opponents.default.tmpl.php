@@ -32,9 +32,8 @@
       <tr><td align="left">Gold: <?=$gold?></td></tr>
       <tr><td align="left">Fate: <?=$fate?><br/><br/></td></tr>
 
-      <tr><td align="left">Alignment: <b><?=$alignments[$alignment]?></b>&nbsp;&nbsp;</td></tr>
       <?if($toad == 1) {?>
-      <tr><td align="left">Movement: <?=$movements[3]?></td></tr>
+      <tr><td align="left">Movement: <?=$movements[4]?></td></tr>
       <?}?>
       <?if($toad == 0) { if($movement < $movebon) {?>
       <tr><td align="left">Movement: <?=$movements[$movebon]?></td></tr>
@@ -49,6 +48,7 @@
       <tr><td align="left"><a href="index.php?editor=opponents&gameid=<?=$gameid?>&charid=<?=$mycharid?>&action=2"><b>Switch Opponent</b>&nbsp;&nbsp;</a></td></tr>
 </table><br/><br/>	
 <?}?>
+<img width=175 src="images/alignment/<?=$alignment?>.jpg" alt="New Image"/>
 </div> 	
 </td>
 </tr>

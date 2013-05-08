@@ -48,6 +48,9 @@ switch ($editor) {
     case 'opponents':
     require_once('lib/opponents.php');
     break;
+    case 'objectives':
+    require_once('lib/objectives.php');
+    break;
 }
 
 $tmpl->set('javascript', $javascript);

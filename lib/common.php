@@ -26,4 +26,14 @@ function game_loss(){
   	$mysql->query_no_result($query);
 }
 
+function random_char_select($gameid) {
+  global $mysql;
+
+  $query = "select id from characters WHERE id not in (select charid from games_players WHERE gameid = $gameid) and id > 0 order by rand() limit 3";
+  $results = $mysql->query_mult_assoc($query);
+  $array = $results;
+
+  return $array;
+}
+
 ?>

@@ -263,3 +263,11 @@ table {
 .indented {
   margin: 5px 0px 0px 10px;
 }
+
+.swap {
+background-image:url(images/characters/death.jpg);
+}
+
+.swap:hover {
+background-image:url(images/characters/flip.jpg);
+} 

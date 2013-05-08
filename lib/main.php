@@ -22,6 +22,7 @@ switch ($action) {
 	$body->set('gameid', $gameid);
        $body->set('charid', $charid);
 	$body->set('randomname', create_random_name());
+	$body->set('endings', get_endings());
 	break;
   case 2:
 	$gameid = create_game();
@@ -127,12 +128,57 @@ function create_game() {
   global $mysql, $playerid;
 
   $gamename = $_POST['gamename'];
+  $death = $_POST['death'];
+  $pending = $_POST['ending'];
+  $sel_ending = $_POST['sel_ending'];
+
+  $ending = 0;
+  $revealed = 1;
+
+  if($death != 1){
+	$death = 0;
+  }
+
+  if($sel_ending > 0){
+	$ending = $sel_ending;
+  }
+  if(($pending == 1 && $sel_ending == 0) || ($pending == 0 && $sel_ending == 0)) {
+	$ending = 10;
+  } 
+  if($pending == 2 && $sel_ending == 0){
+	$query = "SELECT id,name FROM endings WHERE revealed = 0 order by rand()";
+   	$result = $mysql->query_mult_assoc($query);
+   	if ($result) {
+  		foreach ($result as $result) {
+			$array[] = array("id"=>$result['id'], "name"=>$result['name']);
+  		}
+    	 }
+	$ending = array_rand($array);
+	$revealed = 0;
+  }
+  if($pending == 3 && $sel_ending == 0){
+	$query = "SELECT id,name FROM endings order by rand()";
+   	$result = $mysql->query_mult_assoc($query);
+   	if ($result) {
+  		foreach ($result as $result) {
+			$array[] = array("id"=>$result['id'], "name"=>$result['name']);
+  		}
+    	 }
+	$ending = array_rand($array);
+  }
+
+  if($ending == 11){
+	$death = 1;
+  }
+  if($ending == 0){
+	$ending = 10;
+  }
 
   $query = "SELECT MAX(id) as id FROM games";
   $result = $mysql->query_assoc($query);
   $nextid = $result['id'] + 1;
 
-  $query = "INSERT INTO games SET id = $nextid, name = \"$gamename\", active = 1";
+  $query = "INSERT INTO games SET id = $nextid, name = \"$gamename\", active = 1, reaper= $death, ending=$ending, revealed=$revealed";
   $mysql->query_no_result($query);
 
   return $nextid;
@@ -144,6 +190,19 @@ function get_game_id() {
   $query = "select id,name from games WHERE active = 1";
   $results = $mysql->query_mult_assoc($query);
   $array = $results;
+
+  return $array;
+}
+
+function get_endings() {
+  global $mysql;
+
+  $query = "select id,name from endings WHERE id != 10 order by name";
+  $results = $mysql->query_mult_assoc($query);
+  $array = $results;
+
+  $arr[] = array("id"=>0, "name"=>"None");
+  $array = $arr+$results;
 
   return $array;
 }
