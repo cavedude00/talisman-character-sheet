@@ -12,6 +12,8 @@ switch ($editor) {
     	break;
   case 'opponents':
     	break;
+  case 'objectives':
+    	break;
  }
 
 function build_tabs () {
@@ -20,6 +22,7 @@ function build_tabs () {
   $tabstatus1 = "off";
   $tabstatus2 = "off";
   $tabstatus3 = "off";
+  $tabstatus4 = "off";
 
   $gameurl = "";
   $charurl = "";
@@ -38,6 +41,9 @@ function build_tabs () {
     case 'opponents':
       $tabstatus3 = "on";
       break;
+    case 'objectives':
+      $tabstatus4 = "on";
+      break;
   }
 
   $admin = '';
@@ -52,6 +58,7 @@ function build_tabs () {
        <div class=\"$tabstatus1\"><a href=\"index.php?editor=main$gameurl$charurl\">Games</a></div></center>
 	<div class=\"$tabstatus2\"><a href=\"index.php?editor=character$gameurl$charurl\">Character</a></div>
 	<div class=\"$tabstatus3\"><a href=\"index.php?editor=opponents$gameurl$charurl\">Opponents</a></div>
+	<div class=\"$tabstatus4\"><a href=\"index.php?editor=objectives$gameurl$charurl\">Objectives</a></div>
 	<div style=\"float: right;\">$admin<a href=\"index.php?logout\">Logout</a></div><br>
       </div>
 ";

@@ -20,13 +20,15 @@
 <?foreach($bonuses as $bon): extract($bon);?>
 <table style="border: 1px solid black; background-color: #CCC;">
       <tr><td align="left"><b>Vitals:</b></td></tr>
-      <tr><td align="left">Life: <?=$life?>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=2"><img src="images/upgrade.gif" border="0" title="Life Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=3"><img src="images/downgrade.gif" border="0" title="Life Down"></a></td></tr>
+      <tr><td align="left">Life: <?=$life?> (<?=$max_life?>)&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=3"><img src="images/downgrade.gif" border="0" title="Life Down"></a>&nbsp;&nbsp;(<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=2"><img src="images/upgrade.gif" border="0" title="Life Up"></a>)</td></tr>
       <?if($toad == 1) {?>
       <tr><td align="left">Strength: <?=$toad_strength?>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=4"><img src="images/upgrade.gif" border="0" title="Strength Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=5"><img src="images/downgrade.gif" border="0" title="Strength Down"></a><td></tr>
       <tr><td align="left">Craft: <?=$toad_craft?>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=6"><img src="images/upgrade.gif" border="0" title="Craft Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=7"><img src="images/downgrade.gif" border="0" title="Craft Down"></a></td></tr>
-      <?} else {?>
-      <tr><td align="left">Strength: <?=$strength?>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=8"><img src="images/upgrade.gif" border="0" title="Strength Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=9"><img src="images/downgrade.gif" border="0" title="Strength Down"></a></td></tr>
-      <tr><td align="left">Craft: <?=$craft?>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=10"><img src="images/upgrade.gif" border="0" title="Craft Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=11"><img src="images/downgrade.gif" border="0" title="Craft Down"></a></td></tr>
+      <?} else {
+	$totalstr = $strength+$pstrbon;
+	$totalcraft = $craft+$pcraftbon;?>
+      <tr><td align="left">Strength: <?=$totalstr?>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=8"><img src="images/upgrade.gif" border="0" title="Strength Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=9"><img src="images/downgrade.gif" border="0" title="Strength Down"></a></td></tr>
+      <tr><td align="left">Craft: <?=$totalcraft?>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=10"><img src="images/upgrade.gif" border="0" title="Craft Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=11"><img src="images/downgrade.gif" border="0" title="Craft Down"></a></td></tr>
       <?}?>
       <tr><td align="left">Gold: <?=$gold?>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=12"><img src="images/upgrade.gif" border="0" title="Gold Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=13"><img src="images/downgrade.gif" border="0" title="Gold Down"></a></td></tr>
       <tr><td align="left">Fate: <?=$fate?>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=14"><img src="images/upgrade.gif" border="0" title="Fate Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=15"><img src="images/downgrade.gif" border="0" title="Fate Down"></a><br/><br/></td></tr>
@@ -44,13 +46,8 @@
       <tr><td align="left"><b>Combat Craft:</b> <?=$combat_craft?>&nbsp;&nbsp;<br/><br/></td></tr>
       <?}?>
 
-      <?if($charid == 6 || $charid == 15) {?>
-      <tr><td align="left">Alignment: <b><?=$alignments[$alignment]?></b>&nbsp;&nbsp;</td></tr>
-      <?} else {?>
-      <tr><td align="left">Alignment: <a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=16"><b><?=$alignments[$alignment]?></b>&nbsp;&nbsp;</a></td></tr>
-      <?}?>
       <?if($toad == 1) {?>
-      <tr><td align="left">Movement: <?=$movements[3]?></td></tr>
+      <tr><td align="left">Movement: <?=$movements[4]?></td></tr>
       <?}?>
       <?if($toad == 0) { if($movement < $movebon) {?>
       <tr><td align="left">Movement: <?=$movements[$movebon]?></td></tr>
@@ -78,8 +75,19 @@
        <?if($charid == 8 && $hasspellslot == 1){?>
       <tr><td align="left"><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=31"><b>Draw Spells</b>&nbsp;&nbsp;</a></td></tr>
        <?}?>
+       <?if($inventoryfree > 0 && $relic > 0) {?>
+	<tr><td align="left"><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=36"><b>Draw Random Relic</b>&nbsp;&nbsp;</a></td></tr>
+	<?}?>
+	 <?if($inventoryfree > 0 && $treasure > 0) {?>
+	<tr><td align="left"><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=37"><b>Draw Treasure</b>&nbsp;&nbsp;</a></td></tr>
+	<?}?>
 </table><br/><br/>
-<?endforeach;?>		
+<?endforeach;?>
+<?if($charid == 6 || $charid == 15) {?>	
+<img width=175 src="images/alignment/<?=$alignment?>.jpg" alt="New Image"/>
+<?} else {?>
+<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=16"><img width=175 src="images/alignment/<?=$alignment?>.jpg" alt="New Image"/></a>
+<?}?>
 </div> 	
 </td>
 </tr>
@@ -144,7 +152,7 @@
 <?endforeach;?>
 
 <?foreach($bonuses as $bon): extract($bon);?>	
-<?if($objectbon+4 > 3 && $invcount > 3 && $invcount < 8) {?>
+<?if($objectbon+4 > 4 && $invcount > 3 && $invcount < 8 && $inventoryfree == 1) {?>
 	<td>
 	<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=22"><img width=175 src="images/inventory/new.jpg" alt="New Image"/></a></td>
 <?}?>
@@ -167,7 +175,7 @@
 <?endforeach;?>
 
 <?foreach($bonuses as $bon): extract($bon);?>	
-<?if($objectbon+4 > 7 && $invcount > 7 && $invcount < 12) {?>
+<?if($objectbon+4 > 8 && $invcount > 7 && $invcount < 12 && $inventoryfree == 1) {?>
 	<td>
 	<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=22"><img width=175 src="images/inventory/new.jpg" alt="New Image"/></a></td>
 <?}?>
@@ -190,7 +198,7 @@
 <?endforeach;?>
 
 <?foreach($bonuses as $bon): extract($bon);?>	
-<?if($objectbon+4 > 11 && $invcount > 11 && $invcount < 16) {?>
+<?if($objectbon+4 > 12 && $invcount > 11 && $invcount < 16 && $inventoryfree == 1) {?>
 	<td>
 
 	<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&int=<?=$objectbon+4?>&int_=<?=$invcount?>&action=22"><img width=175 src="images/inventory/new.jpg" alt="New Image"/></a></td>
@@ -214,7 +222,7 @@
 <?endforeach;?>
 
 <?foreach($bonuses as $bon): extract($bon);?>	
-<?if($objectbon+4 > 15 && $invcount > 15 && $invcount < 20) {?>
+<?if($objectbon+4 > 16 && $invcount > 15 && $invcount < 20 && $inventoryfree == 1) {?>
 	<td>
 
 	<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&int=<?=$objectbon+4?>&int_=<?=$invcount?>&action=22"><img width=175 src="images/inventory/new.jpg" alt="New Image"/></a></td>
@@ -227,6 +235,58 @@
 
 </div>
     </center>
+
+<? if($has_bag > 0){?>
+<?//BAG INVENTORY?>
+
+<a href="#" onclick="toggle_visibility('bags_block');"><b>Bags</b><br/><br/></a>
+<div id="bags_block" style="display:none">
+    <center>
+
+<table style="width: 100%" cellpadding="5"> 		
+<div style="padding-top: 1px">  
+<tr>
+<?$i=1;?>
+<?foreach($bagdata as $bag): extract($bag);?>
+      <td>
+	<a onClick="return confirm('Are you sure you wish to drop your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=21"><img width=175 src="images/inventory/<?=$itemid?>.jpg" alt="<?=$itemid?> Image"/></a></td>
+<?if($i == 4){ break; }?>
+<?$i++;?>
+<?endforeach;?>
+	
+<?if($bagcount < 4) {?>
+	<td>
+	<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=38"><img width=175 src="images/inventory/new.jpg" alt="New Image"/></a></td>
+<?}?>
+</tr>
+</div>
+</table>
+
+<table style="width: 100%" cellpadding="5"> 		
+<div style="padding-top: 1px">  
+<tr>
+<?$i=1;?>
+<?foreach($bagdata as $bag): extract($bag);?>
+<?if($i > 4) {?>
+      <td>
+	<a onClick="return confirm('Are you sure you wish to drop your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=21"><img width=175 src="images/inventory/<?=$itemid?>.jpg" alt="<?=$itemid?> Image"/></a></td>
+<?}?>
+<?if($i == 8){ break; }?>
+<?$i++;?>
+<?endforeach;?>
+
+<?if($bagcount > 3 && $bagcount < 8) {?>
+	<td>
+	<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=38"><img width=175 src="images/inventory/new.jpg" alt="New Image"/></a></td>
+<?}?>
+</tr>
+</div>
+</table>
+<br/><br/>
+
+</div>
+    </center>
+<?}?>
 
 <?//FOLLOWERS?>
 
@@ -348,11 +408,11 @@
 <tr>
 <?$i=1;?>
 <?foreach($spells as $spell): extract($spell);?>
-<?if($i < 4) {?>
+<?if($i < 5) {?>
       <td>
 	<a onClick="return confirm('Are you sure you wish to cast/discard Spell:<?=$sname?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&spellid=<?=$spellid?>&action=29"><img width=175 src="images/spells/<?=$spellid?>.jpg" alt="<?=$spellid?> Image"/></a></td>
 <?}?>
-<?if($i == 3){ break; }?>
+<?if($i == 4){ break; }?>
 <?$i++;?>
 <?endforeach;?>
 <?if($hasspellslot == 1) {?>
