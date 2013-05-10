@@ -244,6 +244,33 @@ case 39:
 	add_bag();
 	header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
     	exit;	
+case 40:
+	heal();
+	header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
+    	exit;	
+case 41:
+	$body = new Template("templates/character/spell.select.tmpl.php");
+	$body->set("spells", get_spells());
+	$body->set("playerid", $playerid);
+	$body->set("charid", $charid);
+	$body->set("gameid", $gameid);
+	break;
+case 42:
+      insert_spell();
+      header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
+      exit;
+case 43:
+      discard_inventory();
+      header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
+      exit;
+case 44:
+      copy_inventory_to_bag();
+      header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
+      exit;
+case 45:
+      copy_bag_to_inventory();
+      header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
+      exit;
 }
 
 function get_char_id() {
@@ -267,6 +294,9 @@ function copy_char($gameid,$charid,$oldcharid) {
   $mysql->query_no_result($query);
 
   $query = "UPDATE games_spells SET discarded = 1 WHERE gameid = $gameid AND playerid = $playerid AND charid = $oldcharid";
+  $mysql->query_no_result($query);
+
+  $query = "UPDATE games_quests SET charid = $charid WHERE gameid = $gameid AND playerid = $playerid AND charid = $oldcharid";
   $mysql->query_no_result($query);
 
   $query = "UPDATE players SET losses=losses+1 WHERE id = $playerid";
@@ -399,6 +429,28 @@ function select_char($gameid,$charid) {
 	choose_random_spell($playerid, $gameid, $charid);
 	choose_random_spell($playerid, $gameid, $charid);
   }
+
+  $query = "select ending from games where id = $gameid";
+  $result = $mysql->query_assoc($query);
+  $ending = $result['ending'];
+
+  $query = "select count(*) as qcount from games_quests where gameid = $gameid AND playerid = $playerid";
+  $result = $mysql->query_assoc($query);
+  $qcount = $result['qcount'];
+
+  if($ending == 2){
+	if($qcount > 0){
+		$query = "UPDATE games_quests SET charid = $charid WHERE gameid = $gameid AND playerid = $playerid";
+  		$mysql->query_no_result($query);
+	}
+	else{
+		get_random_quest();
+		get_random_quest();
+		get_random_quest();
+		get_random_quest();
+	}
+  }
+  
 }	
 
 function get_character_data($gameid) {
@@ -423,15 +475,22 @@ function get_char_start() {
 function life_up() {
  global $mysql, $playerid, $gameid, $charid;
   
- $query = "UPDATE games_players SET max_life = max_life+1 WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
+ $query = "UPDATE games_players SET max_life = max_life+1, life = life+1 WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
   $mysql->query_no_result($query);
 }
 
 function heal() {
  global $mysql, $playerid, $gameid, $charid;
   
- $query = "UPDATE games_players SET life = life+1 WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
-  $mysql->query_no_result($query);
+$query = "SELECT max_life,life from games_players WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
+  $result = $mysql->query_assoc($query);
+  $health = $result['max_life'];
+  $curlife = $result['life'];
+  
+  if($curlife+1 <= $health){
+ 	$query = "UPDATE games_players SET life = life+1 WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
+  	$mysql->query_no_result($query);
+  }
 }
 
 function life_down() {
@@ -1007,12 +1066,12 @@ function get_follower_count() {
   return $count;
 }
 
-function delete_inventory() {
+function discard_inventory() {
   global $mysql, $playerid, $gameid, $charid;
 
-  $itemid = $_GET['id'];
+  $id = $_GET['id'];
 
- $query = "DELETE FROM games_inventory WHERE id = $itemid AND gameid = $gameid AND playerid = $playerid AND charid = $charid AND itemid > 0";
+ $query = "DELETE FROM games_inventory WHERE id = $id AND gameid = $gameid AND playerid = $playerid AND charid = $charid";
   $mysql->query_no_result($query);
 }
 
@@ -1273,7 +1332,7 @@ function get_followers() {
   $result = $mysql->query_assoc($query);
   $count = $result['count'];
 
-  $query = "SELECT id,name,type FROM inventory";
+  $query = "SELECT id,name,type FROM inventory WHERE relic = 0 AND treasure = 0 AND type in (3,5)";
   $result = $mysql->query_mult_assoc($query);
   if ($result) {
   	foreach ($result as $result) {
@@ -1305,6 +1364,9 @@ function add_inventory() {
   global $mysql, $playerid, $gameid, $charid;
 
   $objectid = $_POST['objectid'];
+  if($objectid == ''){
+	$objectid = $_GET['objectid'];
+  }
 
    $left = any_items_left($objectid);
    if($left == 1)
@@ -1312,6 +1374,26 @@ function add_inventory() {
    	$query = "INSERT INTO games_inventory SET itemid = $objectid, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0, inbag = 0";
    	$mysql->query_no_result($query);
    }
+}
+
+function copy_inventory_to_bag() {
+  global $mysql, $playerid, $gameid, $charid;
+
+  $id = $_GET['id'];
+
+   $query = "UPDATE games_inventory SET inbag = 1 WHERE id = $id";
+   $mysql->query_no_result($query);
+
+}
+
+function copy_bag_to_inventory() {
+  global $mysql, $playerid, $gameid, $charid;
+
+  $id = $_GET['id'];
+
+   $query = "UPDATE games_inventory SET inbag = 0 WHERE id = $id";
+   $mysql->query_no_result($query);
+
 }
 
 function add_bag() {
@@ -1611,6 +1693,41 @@ function get_next_spell(){
    $nextspell = $result['nextspellid']; 
 
    return $nextspell;
+}
+
+function get_spells($playerid, $gameid, $charid) {
+   global $mysql;
+	
+   $used = all_spells_used();
+   if($used == 1)
+   {
+      $query = "DELETE FROM games_spells WHERE discarded = 1";
+      $mysql->query_no_result($query);
+   }
+
+   $query = "SELECT id,name FROM spells order by name";
+   $result = $mysql->query_mult_assoc($query);
+   if ($result) {
+  	 foreach ($result as $result) {
+		$left = any_spells_left($result['id']);
+		if($left == 1)
+		{
+			$spells[] = array("id"=>$result['id'], "name"=>$result['name']);
+  		}
+    	 }
+   }
+    
+  return $spells;
+   
+}
+
+function insert_spell() {
+  global $mysql, $playerid, $gameid, $charid;
+
+  $spellid = $_POST['spellid'];
+
+  $query = "INSERT INTO games_spells SET spellid = $spellid, gameid = $gameid, playerid = $playerid, charid = $charid";
+  $mysql->query_no_result($query);
 }
 
 ?>

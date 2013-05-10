@@ -8,6 +8,8 @@
             <strong>Name</strong><br>
             <input class="indented" id="id" type="text" name="gamename" size="30" value="Game<?=$randomname?>"><br><br>
 	     <input class="indented" type="checkbox" name="death" value=1 <?echo 1 ? "checked" : ""?>> Use the Reaper<br><br>
+	     <input class="indented" type="checkbox" name="warlock" value=1 <?echo 1 ? "checked" : ""?>> Use Warlock Quests<br><br>
+            <input class="indented" type="checkbox" name="quest" value=1 <?echo 1 ? "checked" : ""?>> Use Quest Rewards<br><br>
 	     Ending:<br/><br/>
 	     <center><input type="radio" id="end_normal" name="ending" value=1<?echo 0 ? ' checked' : '';?>>Normal <input type="radio" id="end_hidden" name="ending" value=2<?echo 0 ? ' checked' : '';?>>Hidden <input type="radio" id="end_revealed" name="ending" value=3<?echo 0 ? ' checked' : '';?>>Revealed<br/><br/>
 		<b>OR</b><br/><br/>
