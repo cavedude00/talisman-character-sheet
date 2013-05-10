@@ -36,4 +36,33 @@ function random_char_select($gameid) {
   return $array;
 }
 
+function get_random_quest() {
+  global $mysql, $playerid, $gameid, $charid;
+
+  $query = "SELECT id,name FROM quests";
+  $result = $mysql->query_mult_assoc($query);
+  if ($result) {
+	$quests = array();
+	foreach ($result as $result) {
+		$qid = $result['id'];
+		$query = "SELECT count(*) AS count FROM games_quests WHERE questid = $qid";
+   		$result1 = $mysql->query_assoc($query);
+   		$count = $result1['count']; 
+		if($count == 0){
+			array_push($quests, $result['id']);
+		}
+	}
+  }
+  $quest = $quests[rand(0, count($quests) - 1)];
+
+  $query = "SELECT count(*) AS count FROM games_quests WHERE AND charid = $charid AND gameid = $gameid AND playerid = $playerid";
+  $result = $mysql->query_assoc($query);
+  $qcount = $result['qcount']; 
+
+  if($qcount < 9){
+	$query = "INSERT INTO games_quests SET questid = $quest, charid = $charid, gameid = $gameid, playerid = $playerid";
+   	$mysql->query_no_result($query);
+  }
+}
+
 ?>
