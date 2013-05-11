@@ -65,4 +65,14 @@ function get_random_quest() {
   }
 }
 
+function get_game_data() {
+  global $mysql, $gameid;
+
+  $query = "SELECT quest_rewards,ending FROM games where id = $gameid";
+  $results = $mysql->query_mult_assoc($query);
+  $array = $results;
+
+  return $array;
+}
+
 ?>

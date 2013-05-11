@@ -21,26 +21,26 @@
 
 <table style="border: 1px solid black; background-color: #CCC;">
       <tr><td align="left"><b>Vitals:</b></td></tr>
-      <tr><td align="left">Life: <?=$life?></td></tr>
+      <tr><td align="left">Life: <b><?=$life?></b></td></tr>
       <?if($toad == 1) {?>
-      <tr><td align="left">Strength: <?=$toad_strength?><td></tr>
-      <tr><td align="left">Craft: <?=$toad_craft?></td></tr>
+      <tr><td align="left">Strength: <b><?=$toad_strength?></b><td></tr>
+      <tr><td align="left">Craft: <b><?=$toad_craft?></b></td></tr>
       <?} else {?>
-      <tr><td align="left">Strength: <?=$strength?></a></td></tr>
-      <tr><td align="left">Craft: <?=$craft?></td></tr>
+      <tr><td align="left">Strength: <b><?=$strength?></b></td></tr>
+      <tr><td align="left">Craft: <b><?=$craft?></b></td></tr>
       <?}?>
-      <tr><td align="left">Gold: <?=$gold?></td></tr>
-      <tr><td align="left">Fate: <?=$fate?><br/><br/></td></tr>
+      <tr><td align="left">Gold: <b><?=$gold?></b></td></tr>
+      <tr><td align="left">Fate: <b><?=$fate?></b><br/><br/></td></tr>
 
       <?if($toad == 1) {?>
-      <tr><td align="left">Movement: <?=$movements[4]?></td></tr>
+      <tr><td align="left">Movement: <b><?=$movements[4]?></b></td></tr>
       <?}?>
       <?if($toad == 0) { if($movement < $movebon) {?>
-      <tr><td align="left">Movement: <?=$movements[$movebon]?></td></tr>
+      <tr><td align="left">Movement: <b><?=$movements[$movebon]?></b></td></tr>
       <?} else {?>
-      <tr><td align="left">Movement: <?=$movements[$movement]?></td></tr>
+      <tr><td align="left">Movement: <b><?=$movements[$movement]?></b></td></tr>
       <?}}?>
-      <tr><td align="left">Start: <?=$start?></td></tr>
+      <tr><td align="left">Start: </b><?=$start?><b></td></tr>
 </table><br/>	
 <?if($multopps == 1) {?>
 <table style="border: 1px solid black; background-color: #CCC;">
@@ -273,5 +273,58 @@
     </center>
   </div>
 <?}?>
+
+<?//REWARDS?>
+<?foreach($gamedata as $game): extract($game);?>
+<?if($quest_rewards == 1) { if(($completequests > 0 && $ending != 2) || ($completequests > 3)){ ?>
+
+<a href="#" onclick="toggle_visibility('rewards_block');"><b>Quest Rewards</b><br/><br/></a>
+<div id="rewards_block" style="display:none">
+    <center>
+
+<table style="width: 100%" cellpadding="5"> 		
+<div style="padding-top: 1px">  
+<tr>
+<?$i=1;?>
+<?foreach($rewards as $reward): extract($reward);?>
+      <td>
+	<?if($complete == 1) {?>
+	<br/><br/>
+	<img width=175 src="images/rewards/back.jpg" alt="Image"/>
+	<?} else {?>
+	<img width=175 src="images/rewards/<?=$rewardid?>.jpg" alt="<?=$rewardid?> Image"/></td>
+	<?}?>
+<?if($i == 4){ break; }?>
+<?$i++;?>
+<?endforeach;?>
+</tr>
+</div>
+</table>
+
+<table style="width: 100%" cellpadding="5"> 		
+<div style="padding-top: 1px">  
+<tr>
+<?$i=1;?>
+<?foreach($rewards as $reward): extract($reward);?>
+  <?if($i > 4 && $i < 9) {?>
+      <td>
+	<?if($complete == 1) {?>
+	<br/><br/>
+	<img width=175 src="images/rewards/back.jpg" alt="Image"/>
+	<?} else {?>
+	<img width=175 src="images/rewards/<?=$rewardid?>.jpg" alt="<?=$rewardid?> Image"/></td>
+	<?}}?>
+<?if($i == 8){ break; }?>
+<?$i++;?>
+<?endforeach;?>
+</tr>
+</div>
+</table>
+
+</center>
+</div>
+<?}}?>
+<?endforeach;?>
+
 
 </div>

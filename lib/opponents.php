@@ -32,6 +32,10 @@ switch ($action) {
 				$body->set('mycharid',$charid);
 				$body->set('multopps',0);
 				$body->set('stats', get_opponent_stats($oppid));
+				$body->set('rewards', get_opponent_rewards($oppid));
+				$body->set('gamedata', get_game_data());
+				$body->set('rewardcount', get_opponent_reward_count($oppid));
+				$body->set('completequests', opponent_completed_quests($oppid));
 			}
 			else{
 				$body = new Template("templates/opponents/opponents.select.tmpl.php");
@@ -129,6 +133,42 @@ function get_opponent_toon($oppid){
   $array = $results;
 
   return $array;
+}
+
+function opponent_completed_quests($oppid) {
+  global $mysql, $gameid;
+
+  $ocharid = get_opponent_charid($oppid);
+
+  $query = "SELECT count(*) as count FROM games_quests where gameid = $gameid AND playerid = $oppid AND charid = $ocharid AND complete = 1";
+  $result = $mysql->query_assoc($query);
+  $count = $result['count'];
+
+  return $count;
+}
+
+function get_opponent_rewards($oppid){
+  global $mysql, $gameid;
+
+  $ocharid = get_opponent_charid($oppid);
+
+  $query = "SELECT * FROM games_rewards WHERE gameid = $gameid AND playerid = $oppid AND charid = $ocharid AND discarded = 0";
+  $results = $mysql->query_mult_assoc($query);
+  $array = $results;
+
+  return $array;
+}
+
+function get_opponent_reward_count($oppid) {
+  global $mysql, $gameid;
+
+  $ocharid = get_opponent_charid($oppid);
+
+  $query = "SELECT count(*) as count FROM games_rewards where gameid = $gameid AND playerid = $oppid AND charid = $ocharid AND discarded = 0";
+  $result = $mysql->query_assoc($query);
+  $count = $result['count'];
+
+  return $count;
 }
 
 function get_opp_start($oppid) {
