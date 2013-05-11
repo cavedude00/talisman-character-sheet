@@ -18,26 +18,29 @@
 <br/> 	
 
 <?foreach($bonuses as $bon): extract($bon);?>
+<?foreach($rbonuses as $rbon): extract($rbon);?>
 <table style="border: 1px solid black; background-color: #CCC;">
       <tr><td align="left"><b>Vitals:</b></td></tr>
-      <tr><td align="left">Life: <b><?=$life?> (<?=$max_life?>)</b>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=40"><img src="images/heart.gif" border="0" title="Heal"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=3"><img src="images/downgrade.gif" border="0" title="Life Down"></a>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=2"><img src="images/upgrade.gif" border="0" title="Life Up"></a></td></tr>
+      <? $totallife = $rlifebon+$max_life;
+      $totalfate = $rfatebon+$max_fate;?>
+      <tr><td align="left">Life: <b><?=$life?> (<?=$totallife?>)</b>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=40"><img src="images/heart.gif" border="0" title="Heal"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=3"><img src="images/downgrade.gif" border="0" title="Life Down"></a>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=2"><img src="images/upgrade.gif" border="0" title="Life Up"></a></td></tr>
       <?if($toad == 1) {?>
       <tr><td align="left">Strength: <b><?=$toad_strength?></b>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=4"><img src="images/upgrade.gif" border="0" title="Strength Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=5"><img src="images/downgrade.gif" border="0" title="Strength Down"></a><td></tr>
       <tr><td align="left">Craft: <b><?=$toad_craft?></b>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=6"><img src="images/upgrade.gif" border="0" title="Craft Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=7"><img src="images/downgrade.gif" border="0" title="Craft Down"></a></td></tr>
       <?} else {
-	$totalstr = $strength+$pstrbon;
-	$totalcraft = $craft+$pcraftbon;?>
+	$totalstr = $strength+$pstrbon+$rstrbon;
+	$totalcraft = $craft+$pcraftbon+$rcraftbon;?>
       <tr><td align="left">Strength: <b><?=$totalstr?></b>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=8"><img src="images/upgrade.gif" border="0" title="Strength Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=9"><img src="images/downgrade.gif" border="0" title="Strength Down"></a></td></tr>
       <tr><td align="left">Craft: <b><?=$totalcraft?></b>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=10"><img src="images/upgrade.gif" border="0" title="Craft Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=11"><img src="images/downgrade.gif" border="0" title="Craft Down"></a></td></tr>
       <?}?>
       <tr><td align="left">Gold: <b><?=$gold?></b>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=12"><img src="images/upgrade.gif" border="0" title="Gold Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=13"><img src="images/downgrade.gif" border="0" title="Gold Down"></a></td></tr>
-      <tr><td align="left">Fate: <b><?=$fate?></b>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=14"><img src="images/upgrade.gif" border="0" title="Fate Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=15"><img src="images/downgrade.gif" border="0" title="Fate Down"></a><br/><br/></td></tr>
+      <tr><td align="left">Fate: <b><?=$fate?> (<?=$totalfate?>)</b>&nbsp;&nbsp;<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=14"><img src="images/upgrade.gif" border="0" title="Fate Up"></a><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=15"><img src="images/downgrade.gif" border="0" title="Fate Down"></a><br/><br/></td></tr>
 
       <?if($toad == 0) { 
       if($charid == 33){
       $strbon = $strbon+1;}
       if($warbon == 1 || $charid == 20){
-      $combat_str = $totalstr+$strbon+$craft; } 
+      $combat_str = $totalstr+$strbon+$totalcraft; } 
       else {
       $combat_str = $totalstr+$strbon; }
       $combat_craft = $totalcraft+$craftbon;?>
@@ -82,6 +85,7 @@
 	<tr><td align="left"><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=37"><b>Draw Treasure</b>&nbsp;&nbsp;</a></td></tr>
 	<?}?>
 </table><br/><br/>
+<?endforeach;?>
 <?endforeach;?>
 <?if($charid == 6 || $charid == 15) {?>	
 <img width=175 src="images/alignment/<?=$alignment?>.jpg" alt="New Image"/>
@@ -570,5 +574,67 @@
     </center>
   </div>
 <?}?>
+
+<?//REWARDS?>
+<?foreach($gamedata as $gamed): extract($gamed);?>
+<?if($quest_rewards == 1) { if(($completequests > 0 && $ending != 2) || ($completequests > 3)){ ?>
+
+<a href="#" onclick="toggle_visibility('rewards_block');"><b>Quest Rewards</b><br/><br/></a>
+<div id="rewards_block" style="display:none">
+    <center>
+
+<table style="width: 100%" cellpadding="5"> 		
+<div style="padding-top: 1px">  
+<tr>
+<?$i=1;?>
+<?foreach($rewards as $reward): extract($reward);?>
+      <td>
+	<?if($complete == 1) {?>
+	<br/><br/>
+	<img width=175 src="images/rewards/back.jpg" alt="Image"/>
+	<?} else {?>
+	<div class="topimg"><a onClick="return confirm('Are you sure you wish to flip your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&rewardid=<?=$rewardid?>&value=2&action=47"><img src="images/approved.gif"/></div>
+	<div class="botimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&rewardid=<?=$rewardid?>&value=1&action=47"><img width=175 src="images/rewards/<?=$rewardid?>.jpg" alt="<?=$rewardid?> Image"/></a></td></div>
+	<?}?>
+<?if($i == 4){ break; }?>
+<?$i++;?>
+<?endforeach;?>
+<?if($rewardcount < 4) {?>
+<td>
+<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=46"><img width=175 src="images/rewards/random.jpg" alt="New Image"/></a></td>
+<?}?>
+</tr>
+</div>
+</table>
+
+<table style="width: 100%" cellpadding="5"> 		
+<div style="padding-top: 1px">  
+<tr>
+<?$i=1;?>
+<?foreach($rewards as $rew): extract($rew);?>
+<?if($i > 4 && $i < 9) {?>
+      <td>
+	<?if($complete == 1) {?>
+	<br/><br/>
+	<img width=175 src="images/rewards/back.jpg" alt="Image"/>
+	<?} else {?>
+	<div class="topimg"><a onClick="return confirm('Are you sure you wish to flip your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&rewardid=<?=$rewardid?>&value=2&action=47"><img src="images/approved.gif"/></div>
+	<div class="botimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&rewardid=<?=$rewardid?>&value=1&action=47"><img width=175 src="images/rewards/<?=$rewardid?>.jpg" alt="<?=$rewardid?> Image"/></a></td></div>
+	<?}}?>
+<?if($i == 8){ break; }?>
+<?$i++;?>
+<?endforeach;?>
+<?if($rewardcount < 8 && $rewardcount > 3) {?>
+<td>
+<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=46"><img width=175 src="images/rewards/random.jpg" alt="New Image"/></a></td>
+<?}?>
+</tr>
+</div>
+</table>
+
+</center>
+</div>
+<?}}?>
+<?endforeach;?>
 
 </div>
