@@ -9,6 +9,17 @@ $objects = array(
   5 => 'Horse'
 );
 
+$deck = array(
+  1 => 'Purchase',
+  2 => 'Stable',
+  3 => 'Adventure',
+  4 => 'Relic',
+  5 => 'Treasure',
+  6 => 'Highland',
+  7 => 'Dungeon'
+);
+
+
 switch ($action) {
   case 0:
 	if(!$gameid){
@@ -26,12 +37,12 @@ switch ($action) {
 		{
 			$body = new Template("templates/character/character.default.tmpl.php");
 			$body->set('gameid', $gameid);
-                     $body->set('charid', $charid);
-                     $body->set("alignments", $alignments);
-                     $body->set("movements", $movements);
+                  $body->set('charid', $charid);
+                  $body->set("alignments", $alignments);
+                  $body->set("movements", $movements);
 			$body->set("objects", $objects);
 			$body->set("chardata", get_character_data($gameid));
-                     $body->set('inventorydata', load_inventory());
+                  $body->set('inventorydata', load_inventory());
 			$body->set('bonuses', load_inventory_bonuses());
 			$body->set('start', get_char_start());
 			$body->set('invcount', get_inventory_count());
@@ -50,6 +61,11 @@ switch ($action) {
 			$body->set('has_bag', has_bag());
 			$body->set('bagdata', load_bags());
 			$body->set('bagcount', get_bag_count());
+			$body->set('rewards', load_rewards());
+			$body->set('completequests', completed_quests());
+			$body->set('gamedata', get_game_data());
+			$body->set('rewardcount', get_reward_count());
+			$body->set('rbonuses', load_rewards_bonuses());
 		}
 	}
 	break;
@@ -153,7 +169,7 @@ case 21:
     	exit;	
 case 22:
 	$body = new Template("templates/character/inventory.add.tmpl.php");
-       $body->set("objects", get_objects());
+       $body->set("objects", get_objects(207,23));
 	$body->set('gameid', $gameid);
        $body->set('charid', $charid);
 	break;
@@ -236,7 +252,7 @@ case 37:
 	break;
 case 38:
 	$body = new Template("templates/character/bag.add.tmpl.php");
-       $body->set("objects", get_objects());
+       $body->set("objects", get_objects(207,23));
 	$body->set('gameid', $gameid);
        $body->set('charid', $charid);
 	break;
@@ -270,6 +286,21 @@ case 44:
 case 45:
       copy_bag_to_inventory();
       header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
+      exit;
+case 46:
+      choose_random_reward();
+      header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
+      exit;
+case 47:
+      $value = $_GET['value'];
+      $rewardid = $_GET['rewardid'];
+      discard_reward($value);
+      if($rewardid == 14){
+      	header("Location: index.php?editor=character&gameid=$gameid&charid=$charid&action=16");
+      }
+      else{
+      	header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
+      }
       exit;
 }
 
@@ -365,7 +396,10 @@ function select_char($gameid,$charid) {
   $query = "UPDATE games_players SET craft = (select craft from characters where id = $charid) WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
   $mysql->query_no_result($query);
 
-  $query = "UPDATE games_players SET fate = (select fate from characters where id = $charid) WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
+  $query = "UPDATE games_players SET max_fate = (select fate from characters where id = $charid) WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
+  $mysql->query_no_result($query);
+
+  $query = "UPDATE games_players SET fate = max_fate WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
   $mysql->query_no_result($query);
 
   $query = "UPDATE games_players SET max_life = (select life from characters where id = $charid) WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
@@ -456,7 +490,7 @@ function select_char($gameid,$charid) {
 function get_character_data($gameid) {
   global $mysql, $playerid, $charid;
 
-  $query = "SELECT strength,craft,fate,life,alignment,gold,toad,toad_strength,toad_craft,movement,lost_gold,max_life from games_players WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
+  $query = "SELECT strength,craft,fate,life,alignment,gold,toad,toad_strength,toad_craft,movement,lost_gold,max_life,max_fate from games_players WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
   $results = $mysql->query_mult_assoc($query);
 
   return $results;
@@ -996,10 +1030,20 @@ function has_dropped_items() {
 function load_inventory_bonuses() {
    global $mysql, $playerid, $gameid, $charid;
  
-   
    $query = "SELECT sum(i.object) AS objectbon, sum(i.strength) AS strbon, sum(i.craft) AS craftbon, max(i.movement) AS movebon, max(i.talisman) AS talbon, max(i.warhorse) AS warbon, sum(i.perm_strength) AS pstrbon, sum(i.perm_craft) AS pcraftbon from inventory i
    INNER join games_inventory gi ON gi.itemid = i.id
    WHERE gi.playerid = $playerid AND gi.gameid = $gameid AND gi.charid = $charid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0";
+   $results = $mysql->query_mult_assoc($query);
+   
+  return $results;
+}
+
+function load_rewards_bonuses() {
+   global $mysql, $playerid, $gameid, $charid;
+ 
+   $query = "SELECT sum(r.life) AS rlifebon, sum(r.strength) AS rstrbon, sum(r.craft) AS rcraftbon, sum(r.fate) AS rfatebon, sum(r.gold) AS rgoldbon from rewards r
+   INNER join games_rewards gr ON gr.rewardid = r.id
+   WHERE gr.playerid = $playerid AND gr.gameid = $gameid AND gr.charid = $charid AND gr.discarded = 0 AND gr.complete = 0 AND r.discard = 0";
    $results = $mysql->query_mult_assoc($query);
 
   return $results;
@@ -1110,16 +1154,115 @@ function drop_whole_inventory() {
   $mysql->query_no_result($query);
 }
 
-function get_objects() {
+function get_objects($bit,$objecttype) {
   global $mysql, $playerid, $gameid, $charid;
 
-  $query = "SELECT count(*) AS count FROM games_inventory gi
-  INNER JOIN inventory i ON i.id = gi.itemid
-  WHERE i.type = 1 AND gi.gameid = $gameid AND gi.playerid = $playerid AND gi.charid = $charid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0";
-  $result = $mysql->query_assoc($query);
-  $count = $result['count'];
+  $deck = -1;
 
-  $query = "SELECT id,name,type FROM inventory WHERE relic = 0 AND treasure = 0";
+  if($bit & 1){
+	$deck = 0;
+  }
+  $deck0 = $deck; $deck = -1;
+
+  if($bit & 2){
+	$deck = 1;
+  } 
+  $deck1 = $deck; $deck = -1;
+
+  if($bit & 4){
+	$deck = 2;
+  } 
+  $deck2 = $deck; $deck = -1;
+
+  if($bit & 8){
+	$deck = 3;
+  } 
+  $deck3 = $deck; $deck = -1;
+
+  if($bit & 16){
+	$deck = 4;
+  } 
+  $deck4 = $deck; $deck = -1;
+
+  if($bit & 32){
+	$deck = 5;
+  } 
+  $deck5 = $deck; $deck = -1;
+
+  if($bit & 64){
+	$deck = 6; 
+  } 
+  $deck6 = $deck; $deck = -1;
+
+  if($bit & 128){
+	$deck = 7;
+  } 
+  $deck7 = $deck; $deck = -1;  
+    
+
+  $type = -1;
+
+  if($objecttype & 1){
+	$type = 0;
+  }
+  $type0 = $type; $type = -1;
+
+  if($objecttype & 2){
+	$type = 1;
+  }
+  $type1 = $type; $type = -1;
+
+  if($objecttype & 4){
+	$type = 2;
+  }
+  $type2 = $type; $type = -1;
+
+  if($objecttype & 8){
+	$type = 3;
+  }
+  $type3 = $type; $type = -1;
+
+  if($objecttype & 16){
+	$type = 4;
+  }
+  $type4 = $type; $type = -1;
+
+  if($objecttype & 32){
+	$type = 5;
+  }
+  $type5 = $type; $type = -1;
+  
+  if($type1 == 1){
+  	$query = "SELECT count(*) AS count FROM games_inventory gi
+  	INNER JOIN inventory i ON i.id = gi.itemid
+  	WHERE i.type = 1 AND gi.gameid = $gameid AND gi.playerid = $playerid AND gi.charid = $charid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0";
+  	$result = $mysql->query_assoc($query);
+  	$count = $result['count'];
+
+	if(($charid != 36 && $count > 0) || ($charid == 36 && $count > 1) || ($charid == 24) || ($charid == 20)){
+		$type1 = -1;
+	}
+  }
+  
+  if($type2 == 2){
+	if($charid == 20){
+		$type2 = -1;
+	}
+  }
+
+  if($type5 == 5){
+  	$query = "SELECT count(*) AS hcount FROM games_inventory gi
+  	INNER JOIN inventory i ON i.id = gi.itemid
+  	WHERE i.type = 5 AND gi.gameid = $gameid AND gi.playerid = $playerid AND gi.charid = $charid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0";
+  	$result = $mysql->query_assoc($query);
+  	$hcount = $result['hcount'];
+
+	if($hcount > 0){
+		$type5 = -1;
+      }
+  }
+
+  $query = "SELECT id,name,type FROM inventory WHERE deck in($deck0,$deck1,$deck2,$deck3,$deck4,$deck5,$deck6,$deck7) AND type in ($type0,$type1,$type2,$type3,$type4,$type5)";
   $result = $mysql->query_mult_assoc($query);
   if ($result) {
   	foreach ($result as $result) {
@@ -1127,24 +1270,7 @@ function get_objects() {
 		$left = any_items_left($result['id']);
 		if($left == 1)
 		{
-  			if(($charid != 36 && $charid != 20 && $count > 0) || ($charid == 36 && $count > 1) || ($charid == 24)){
-				if($result['type'] != 1 && $result['type'] != 3 && $result['type'] != 5)
-				{
-					$array[] = array("id"=>$result['id'], "name"=>$result['name']);
-  				}
-			}
-  			elseif($charid == 20){
-				if($result['type'] != 1 && $result['type'] != 2 && $result['type'] != 3 && $result['type'] != 5)
-				{
-					$array[] = array("id"=>$result['id'], "name"=>$result['name']);
-  				}
-  			}
-  			else{
-  				if($result['type'] != 3 && $result['type'] != 5)
-				{
-					$array[] = array("id"=>$result['id'], "name"=>$result['name']);
-  				}
-  			}
+			$array[] = array("id"=>$result['id'], "name"=>$result['name']);
   		}
 	}
   }
@@ -1160,7 +1286,7 @@ function get_treasure() {
   $result = $mysql->query_assoc($query);
   $count = $result['count'];
 
-  $query = "SELECT id,name,type FROM inventory WHERE treasure = 1";
+  $query = "SELECT id,name,type FROM inventory WHERE deck = 5";
   $result = $mysql->query_mult_assoc($query);
   if ($result) {
   	foreach ($result as $result) {
@@ -1196,18 +1322,18 @@ function random_item($itype,$dquery) {
   global $mysql, $playerid, $gameid, $charid;
 
   if($itype == 1){
-	$relic = 1;
-	$treasure = 0;
+	$relic = 4;
+	$treasure = -1;
   }
 
   elseif($itype == 2){
-	$treasure = 1;
-	$relic = 0;
+	$treasure = 5;
+	$relic = -1;
   }
 
   else {
-	$relic = 0;
-  	$treasure = 0;
+	$relic = -1;
+  	$treasure = -1;
   }
 
   $query = "SELECT count(*) AS count FROM games_inventory gi
@@ -1216,7 +1342,7 @@ function random_item($itype,$dquery) {
   $result = $mysql->query_assoc($query);
   $count = $result['count'];
 
-  $query = "SELECT id,name,type FROM inventory WHERE relic = $relic AND treasure = $treasure";
+  $query = "SELECT id,name,type FROM inventory WHERE deck in ($relic,$treasure)";
   $result = $mysql->query_mult_assoc($query);
   if ($result) {
        $items = array();
@@ -1332,7 +1458,7 @@ function get_followers() {
   $result = $mysql->query_assoc($query);
   $count = $result['count'];
 
-  $query = "SELECT id,name,type FROM inventory WHERE relic = 0 AND treasure = 0 AND type in (3,5)";
+  $query = "SELECT id,name,type FROM inventory WHERE deck < 4 AND type in (3,5)";
   $result = $mysql->query_mult_assoc($query);
   if ($result) {
   	foreach ($result as $result) {
@@ -1728,6 +1854,110 @@ function insert_spell() {
 
   $query = "INSERT INTO games_spells SET spellid = $spellid, gameid = $gameid, playerid = $playerid, charid = $charid";
   $mysql->query_no_result($query);
+}
+
+function load_rewards() {
+  global $mysql, $playerid, $gameid, $charid;
+
+  $query = "SELECT gr.id,gr.rewardid,r.name,gr.complete from games_rewards gr 
+  INNER JOIN rewards r ON r.id = gr.rewardid
+  WHERE gr.gameid = $gameid AND gr.playerid = $playerid AND gr.charid = $charid AND gr.discarded = 0";
+  $results = $mysql->query_mult_assoc($query);
+
+  return $results;
+}
+
+function choose_random_reward() {
+   global $mysql, $gameid, $playerid, $charid;
+
+   $query = "SELECT id,name from rewards";
+   $result = $mysql->query_mult_assoc($query);
+   if ($result) {
+	 $rewards = array();
+
+  	 foreach ($result as $result) {
+		$rid = $result['id'];
+		$query = "SELECT count(*) as count from games_rewards WHERE rewardid = $rid AND gameid = $gameid";
+	 	$result1 = $mysql->query_assoc($query);
+        	$count = $result1['count'];
+
+	 	if($count == 0){
+			array_push($rewards, $result['id']);
+		}
+    	 }
+   }
+   $reward = $rewards[rand(0, count($rewards) - 1)];
+
+   $query = "INSERT INTO games_rewards SET rewardid = $reward, gameid = $gameid, playerid = $playerid, charid = $charid";
+   $mysql->query_no_result($query); 
+}
+
+function get_game_data() {
+  global $mysql, $gameid;
+
+  $query = "SELECT quest_rewards,ending FROM games where id = $gameid";
+  $results = $mysql->query_mult_assoc($query);
+  $array = $results;
+
+  return $array;
+}
+
+function completed_quests() {
+  global $mysql, $playerid, $gameid, $charid;
+
+  $query = "SELECT count(*) as count FROM games_quests where gameid = $gameid AND playerid = $playerid AND charid = $charid AND complete = 1";
+  $result = $mysql->query_assoc($query);
+  $count = $result['count'];
+
+  return $count;
+}
+
+function get_reward_count() {
+  global $mysql, $playerid, $gameid, $charid;
+
+  $query = "SELECT count(*) as count FROM games_rewards where gameid = $gameid AND playerid = $playerid AND charid = $charid AND discarded = 0";
+  $result = $mysql->query_assoc($query);
+  $count = $result['count'];
+
+  return $count;
+}
+
+function discard_reward($value){
+  global $mysql, $playerid, $gameid, $charid;
+ 
+  $id = $_GET['id'];
+  $rewardid = $_GET['rewardid'];
+
+  if($value == 1){
+  	$query = "UPDATE games_rewards SET discarded = 1 WHERE id = $id";
+  	$mysql->query_no_result($query);
+  }
+  if($value == 2){
+	$query = "UPDATE games_rewards SET complete = 1 WHERE id = $id";
+  	$mysql->query_no_result($query);
+  }
+
+  if($rewardid == 5){
+	$query = "UPDATE games_players set life = max_life WHERE playerid = $playerid AND gameid = $gameid AND charid = $charid";
+	$mysql->query_no_result($query);
+  }
+  if($rewardid == 8){
+	$query = "UPDATE games_players set life = life+1, max_life = max_life+1, gold = gold+1, fate = fate+1, max_fate = max_fate+1 WHERE playerid = $playerid AND gameid = $gameid AND charid = $charid";
+	$mysql->query_no_result($query);
+
+ 	choose_random_spell($playerid, $gameid, $charid);
+  }
+  if($rewardid == 15){
+	$query = "UPDATE games_players set fate = max_fate WHERE playerid = $playerid AND gameid = $gameid AND charid = $charid";
+	$mysql->query_no_result($query);
+  }
+  if($rewardid == 16){
+	$query = "UPDATE games_players set gold = gold+3 WHERE playerid = $playerid AND gameid = $gameid AND charid = $charid";
+	$mysql->query_no_result($query);
+  }
+  if($rewardid == 22){
+	draw_all_spells();
+  }
 }
 
 ?>
