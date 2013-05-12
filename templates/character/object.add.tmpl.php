@@ -1,5 +1,8 @@
-<?if($isbag == 1){ $action = 39;} if($dropped == 1){ $action = 27;} else { $action = 23;}?>
+<?if($isbag == 1){ $action = 39;} elseif($dropped == 1){ $action = 27;} else { $action = 23;}?>
 
+<?if($objects < 1){?>
+<br/><br/><br/><center><div class='tab_title'><b><i>No available items!</b></i></div></center>
+<?}?>
 <div>
 <table style="width: 100%" cellpadding="5"> 		
 <div style="padding-top: 1px">  
