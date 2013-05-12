@@ -23,6 +23,7 @@ switch ($action) {
 			$body->set("bahquests", load_quests());
 			$body->set("qcount", quest_count());
 			$body->set("allcomplete", all_complete());
+			$body->set("hasgrail", has_grail());
        	}
 	}
   break;
@@ -84,7 +85,7 @@ function load_quests() {
 
   $query = "SELECT gq.questid,q.name AS qname,gq.complete FROM games_quests gq
   INNER JOIN quests q ON q.id = gq.questid
-  WHERE gq.playerid = $playerid AND gq.charid = $charid AND gq.gameid = $gameid limit 8";
+  WHERE gq.playerid = $playerid AND gq.charid = $charid AND gq.gameid = $gameid AND gq.discared = 0 limit 8";
   $results = $mysql->query_mult_assoc($query);
 
    return $results;
@@ -93,7 +94,7 @@ function load_quests() {
 function quest_count(){
   global $mysql, $playerid, $gameid, $charid;
 
-  $query = "SELECT count(*) AS count FROM games_quests WHERE charid = $charid AND gameid = $gameid AND playerid = $playerid";
+  $query = "SELECT count(*) AS count FROM games_quests WHERE charid = $charid AND gameid = $gameid AND playerid = $playerid AND discarded = 0";
   $result = $mysql->query_assoc($query);
   $count = $result['count']; 
 
@@ -144,7 +145,18 @@ function insert_quest() {
 
   $questid = $_POST['questid'];
 
-  $query = "INSERT INTO games_quests SET questid = $questid, gameid = $gameid, playerid = $playerid, charid = $charid";
+  $query = "INSERT INTO games_quests SET questid = $questid, gameid = $gameid, playerid = $playerid, charid = $charid, discarded = 0";
   $mysql->query_no_result($query);
 }
+
+function has_grail() {
+  global $mysql, $playerid, $gameid, $charid;
+
+  $query = "SELECT count(*) AS count FROM games_inventory WHERE itemid = 53 AND charid = $charid AND gameid = $gameid AND playerid = $playerid";
+  $result = $mysql->query_assoc($query);
+  $count = $result['count']; 
+  
+  return $count;
+}
+
 ?>
