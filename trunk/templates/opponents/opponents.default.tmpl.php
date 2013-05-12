@@ -40,7 +40,7 @@
       <?} else {?>
       <tr><td align="left">Movement: <b><?=$movements[$movement]?></b></td></tr>
       <?}}?>
-      <tr><td align="left">Start: </b><?=$start?><b></td></tr>
+      <tr><td align="left">Start: <b><?=$start?></b></td></tr>
 </table><br/>	
 <?if($multopps == 1) {?>
 <table style="border: 1px solid black; background-color: #CCC;">

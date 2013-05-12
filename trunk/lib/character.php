@@ -67,7 +67,6 @@ switch ($action) {
 			$body->set('gamedata', get_game_data());
 			$body->set('rewardcount', get_reward_count());
 			$body->set('rbonuses', load_rewards_bonuses());
-			$body->set('nextbag', 0);
 		}
 	}
 	break;
@@ -249,19 +248,19 @@ case 36:
     	exit;	
 case 37: // Treasure
 	$body = new Template("templates/character/object.add.tmpl.php");
-      $body->set("objects", get_objects(32,63));
+       $body->set("objects", get_objects(32,63));
 	$body->set('gameid', $gameid);
-      $body->set('charid', $charid);
+       $body->set('charid', $charid);
 	break;
 case 38: // Add to bag
 	$body = new Template("templates/character/object.add.tmpl.php");
-      $body->set("objects", get_objects(207,23));
+       $body->set("objects", get_objects(207,23));
 	$body->set('gameid', $gameid);
-      $body->set('charid', $charid);
+       $body->set('charid', $charid);
 	$body->set('isbag', 1);
 	break;
 case 39:
-	add_bag();
+	add_inventory(1);
 	header("Location: index.php?editor=character&gameid=$gameid&charid=$charid");
     	exit;	
 case 40:
@@ -323,6 +322,12 @@ case 49: // Purchase
       $body->set("objects", get_objects(2,63));
 	$body->set('gameid', $gameid);
       $body->set('charid', $charid);
+	break;
+case 50: // Limit exemption
+	$body = new Template("templates/character/object.add.tmpl.php");
+       $body->set("objects", get_ignore_limit_items());
+	$body->set('gameid', $gameid);
+       $body->set('charid', $charid);
 	break;
 }
 
@@ -763,7 +768,7 @@ function collect_items() {
 
   $query1 = "SELECT count(*) AS bagcount FROM games_inventory gi
   INNER JOIN inventory i ON i.id = gi.itemid
-  WHERE i.type not in (3,5) AND gi.gameid = $gameid AND gi.playerid = $playerid AND gi.charid = $charid AND gi.itemid > 0 AND gi.inbag > 0 AND gi.lost = 1 AND gi.dropped = 1 OR i.type not in (3,5) AND ignorelimit = 0 AND gi.gameid = $gameid AND gi.playerid = $playerid AND gi.charid = $charid AND gi.itemid > 0 AND gi.inbag > 0 AND gi.lost = 0 AND gi.dropped = 0";
+  WHERE i.type not in (3,5) AND gi.gameid = $gameid AND gi.playerid = $playerid AND gi.charid = $charid AND gi.itemid > 0 AND gi.inbag > 0 AND gi.lost = 1 AND gi.dropped = 1 OR i.type not in (3,5) AND gi.gameid = $gameid AND gi.playerid = $playerid AND gi.charid = $charid AND gi.itemid > 0 AND gi.inbag > 0 AND gi.lost = 0 AND gi.dropped = 0";
   $result1 = $mysql->query_assoc($query1);
   $bagcount = $result1['bagcount'];
 
@@ -848,9 +853,9 @@ function load_bags() {
 
   if($maxobjects > 0)
   {
-     if($maxobjects > 10)
+     if($maxobjects > 12)
      {
-	 $maxobjects = 10;
+	 $maxobjects = 12;
      }
 
      $query = "SELECT gi.id,gi.itemid,gi.playerid,gi.gameid,i.name,gi.lost from games_inventory gi 
@@ -897,11 +902,11 @@ function has_free_inventory_slot(){
   $bagcount = $result['bagcount'];
 
   if($itemcount < $maxobjects){ 
-	$bool = 1;
+	$bool = $bool + 1;
   }
 
-  elseif($bagcount < $bagmax){
-	$bool = 2;
+  if($bagcount < $bagmax){
+	$bool = $bool + 2;
   }
 
   return $bool;
@@ -1077,7 +1082,7 @@ function get_inventory_count() {
 
   $query = "SELECT count(*) AS count FROM games_inventory gi
   INNER JOIN inventory i ON i.id = gi.itemid
-  WHERE i.type not in (3,5) AND i.ignorelimit = 0 AND gi.gameid = $gameid AND gi.playerid = $playerid AND gi.charid = $charid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND gi.inbag = 0";
+  WHERE i.type not in (3,5) AND gi.gameid = $gameid AND gi.playerid = $playerid AND gi.charid = $charid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND gi.inbag = 0";
   $result = $mysql->query_assoc($query);
   $count = $result['count'];
 
@@ -1434,14 +1439,28 @@ function get_random_item($bit,$objecttype,$dquery) {
   }
   $item = $items[rand(0, count($items) - 1)];
 
+  $limit = ignore_limit($item);
+
   if($item > 0 && $dquery == 0){
 	$free = has_free_inventory_slot();
-	if($free == 1){
-		$query = "INSERT INTO games_inventory SET itemid = $item, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0, inbag = 0";
+	if($free & 1){
+		if($limit == 1){
+			$bag = get_max_ginventory_id();
+		}
+		else{
+			$bag = 0;
+		}
+		$query = "INSERT INTO games_inventory SET itemid = $item, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0, inbag = $bag";
    		$mysql->query_no_result($query);
 	}
-	elseif($free == 2){
-		$query = "INSERT INTO games_inventory SET itemid = $item, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0, inbag > 0";
+	elseif($free & 2){
+			if($limit == 1){
+				$bag = get_max_ginventory_id();
+			}
+			else{
+				$bag = select_bag();
+			}
+		$query = "INSERT INTO games_inventory SET itemid = $item, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0, inbag = $bag";
    		$mysql->query_no_result($query);
 	}
   }
@@ -1512,8 +1531,12 @@ function get_dropped_objects() {
   return $array;
 }
 
-function add_inventory() {
+function add_inventory($usebag) {
   global $mysql, $playerid, $gameid, $charid;
+
+  if($usebag != 1){
+	$usebag = 0;
+  }
 
   $objectid = $_POST['objectid'];
   if($objectid == ''){
@@ -1523,21 +1546,39 @@ function add_inventory() {
    $left = any_items_left($objectid);
    if($left == 1)
    {
-	$query = "SELECT ignorelimit FROM inventory WHERE id = $objectid";
-   	$result = $mysql->query_assoc($query);
-   	$ignorelimit = $result['ignorelimit'];
-
-	if($ignorelimit == 1){
-		$query = "SELECT max(id)+1 AS maxid FROM games_inventory";
-   		$result = $mysql->query_assoc($query);
-   		$maxid = $result['maxid'];
-
-		$query = "INSERT INTO games_inventory SET id = $maxid, inbag = $maxid, itemid = $objectid, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0";
-   		$mysql->query_no_result($query);
+	$ignorelimit = ignore_limit($objectid);
+   	$maxid = get_max_ginventory_id();
+	$free = has_free_inventory_slot();
+	if($usebag == 1 && $free > 2){
+		$free = $free-1;
 	}
-	else{
-   		$query = "INSERT INTO games_inventory SET itemid = $objectid, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0, inbag = 0";
-   		$mysql->query_no_result($query);
+
+	if($free & 1 && $usebag == 0){
+		if($ignorelimit == 1){
+			$query = "INSERT INTO games_inventory SET id = $maxid, inbag = $maxid, itemid = $objectid, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0";
+   			$mysql->query_no_result($query);
+		}
+		else{
+   			$query = "INSERT INTO games_inventory SET itemid = $objectid, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0, inbag = 0";
+   			$mysql->query_no_result($query);
+		}
+	}
+	elseif($free & 2){
+		if($ignorelimit == 1){
+			$query = "INSERT INTO games_inventory SET id = $maxid, inbag = $maxid, itemid = $objectid, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0";
+   			$mysql->query_no_result($query);
+		}
+		else{
+			$bag = select_bag();
+			$query = "INSERT INTO games_inventory SET inbag = $bag, itemid = $objectid, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0";
+   			$mysql->query_no_result($query);
+		}
+	}	
+	else{	
+		if($ignorelimit == 1){
+			$query = "INSERT INTO games_inventory SET id = $maxid, inbag = $maxid, itemid = $objectid, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0";
+   			$mysql->query_no_result($query);
+		}
 	}
    }
 }
@@ -1562,24 +1603,6 @@ function copy_bag_to_inventory() {
    $query = "UPDATE games_inventory SET inbag = 0 WHERE id = $id AND inbag != $id";
    $mysql->query_no_result($query);
 
-}
-
-function add_bag() {
-  global $mysql, $playerid, $gameid, $charid;
-
-  $objectid = $_POST['objectid'];
-  if($objectid == ''){
-	$objectid = $_GET['objectid'];
-  }
-
-   $bagid = select_bag();
-
-   $left = any_items_left($objectid);
-   if($left == 1)
-   {
-   	$query = "INSERT INTO games_inventory SET itemid = $objectid, gameid = $gameid, playerid = $playerid, charid = $charid, lost = 0, dropped = 0, inbag = $bagid";
-   	$mysql->query_no_result($query);
-   }
 }
 
 function pick_up_inventory() {
@@ -2000,15 +2023,34 @@ function discard_reward($value){
   }
 }
 	
-function ignore_limit_count() {
-  global $mysql, $playerid, $gameid, $charid;
+function ignore_limit($itemid) {
+  global $mysql;
 
-	$query = "SELECT count(*) as count FROM games_inventory where ignorelimit = 1 AND gameid = $gameid AND playerid = $playerid AND charid = $charid";
+	$query = "SELECT ignorelimit from inventory where id = $itemid";
   	$result = $mysql->query_assoc($query);
-  	$count = $result['count'];
+  	$ignorelimit = $result['ignorelimit'];
   
-       return $count;
+       return $ignorelimit;
 }
+
+function get_ignore_limit_items() {
+  global $mysql;
+
+	$query = "SELECT id,name from inventory where ignorelimit = 1";
+  	$result = $mysql->query_mult_assoc($query);
+	if ($result) {
+  		foreach ($result as $result) {
+
+			$left = any_items_left($result['id']);
+			if($left == 1)
+			{
+				$array[] = array("id"=>$result['id'], "name"=>$result['name']);
+  			}
+  		}
+	}
+       return $array;
+}
+
 
 function select_bag() {
    global $mysql, $playerid, $gameid, $charid;
@@ -2043,4 +2085,13 @@ function select_bag() {
   return $bagid;
 }
 
+function get_max_ginventory_id() {
+   global $mysql;
+
+	$query = "SELECT max(id)+1 AS maxid FROM games_inventory";
+	$result = $mysql->query_assoc($query);
+	$maxid = $result['maxid'];
+
+return $maxid;
+}
 ?>
