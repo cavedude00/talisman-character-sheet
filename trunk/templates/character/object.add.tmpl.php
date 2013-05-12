@@ -1,4 +1,4 @@
-<?if($isbag == 1){ $action = 39;} else { $action = 23;}?>
+<?if($isbag == 1){ $action = 39;} if($dropped == 1){ $action = 27;} else { $action = 23;}?>
 
 <div>
 <table style="width: 100%" cellpadding="5"> 		

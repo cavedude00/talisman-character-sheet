@@ -11,7 +11,7 @@
 </script>
 
 <?foreach($games as $game): extract($game);?>
-<?if($warlock_quests == 1) {?>
+<?if($warlock_quests == 1 && $hasgrail == 0) {?>
 <?//QUESTS?>
 
 <a href="#" onclick="toggle_visibility('quest_block');"><b>Warlock Quests</b><br/><br/></a>

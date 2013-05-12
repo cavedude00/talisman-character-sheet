@@ -84,6 +84,7 @@
 	 <?if($inventoryfree > 0 && $treasure > 0) {?>
 	<tr><td align="left"><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=37"><b>Draw Treasure</b>&nbsp;&nbsp;</a></td></tr>
 	<?}?>
+	<?=$nextbag?>
 </table><br/><br/>
 <?endforeach;?>
 <?endforeach;?>
@@ -127,7 +128,7 @@
 <?$i=1;?>
 <?foreach($inventorydata as $invd): extract($invd);?>
       <td>
-	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=43"><img src="images/delete.gif"/>
+	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&itemid=<?=$itemid?>&action=43"><img src="images/delete.gif"/>
 	<? if($has_bag > 0 && $bagcount < 8){?>
 	<a onClick="return confirm('Are you sure you wish to move your <?=$name?> to your bag?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=44"><img src="images/bag.jpg"/>
 	<?}?>
@@ -153,8 +154,8 @@
 <?foreach($inventorydata as $invd): extract($invd);?>
 <?if($i > 4) {?>
       <td>
-	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=43"><img src="images/delete.gif"/>
-	<? if($has_bag > 0 && $bagcount < 8){?>
+      <div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&itemid=<?=$itemid?>&action=43"><img src="images/delete.gif"/>	
+      <? if($has_bag > 0 && $bagcount < 8){?>
 	<a onClick="return confirm('Are you sure you wish to move your <?=$name?> to your bag?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=44"><img src="images/bag.jpg"/>
 	<?}?>
 	</div>
@@ -180,7 +181,7 @@
 <?foreach($inventorydata as $invd): extract($invd);?>
 <?if($i > 8) {?>
       <td>
-	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=43"><img src="images/delete.gif"/>
+	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&itemid=<?=$itemid?>&action=43"><img src="images/delete.gif"/>
 	<? if($has_bag > 0 && $bagcount < 8){?>
 	<a onClick="return confirm('Are you sure you wish to move your <?=$name?> to your bag?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=44"><img src="images/bag.jpg"/>
 	<?}?>
@@ -207,7 +208,7 @@
 <?foreach($inventorydata as $invd): extract($invd);?>
 <?if($i > 12) {?>
       <td>
-	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=43"><img src="images/delete.gif"/>
+	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&itemid=<?=$itemid?>&action=43"><img src="images/delete.gif"/>
 	<? if($has_bag > 0 && $bagcount < 8){?>
 	<a onClick="return confirm('Are you sure you wish to move your <?=$name?> to your bag?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=44"><img src="images/bag.jpg"/>
 	<?}?>
@@ -235,7 +236,7 @@
 <?foreach($inventorydata as $invd): extract($invd);?>
 <?if($i > 16) {?>
       <td>
-	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=43"><img src="images/delete.gif"/>
+	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&itemid=<?=$itemid?>&action=43"><img src="images/delete.gif"/>
 	<? if($has_bag > 0 && $bagcount < 8){?>
 	<a onClick="return confirm('Are you sure you wish to move your <?=$name?> to your bag?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=44"><img src="images/bag.jpg"/>
 	<?}?>
@@ -273,7 +274,7 @@
 <?$i=1;?>
 <?foreach($bagdata as $bag): extract($bag);?>
       <td>
-	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=43"><img src="images/delete.gif"/>
+	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&itemid=<?=$itemid?>&action=43"><img src="images/delete.gif"/>
 	<? if($has_bag > 0 && $inventoryfree == 1){?>
 	<a onClick="return confirm('Are you sure you wish to move your <?=$name?> to your inventory?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=45"><img src="images/bag.jpg"/>
 	<?}?>
@@ -298,7 +299,7 @@
 <?foreach($bagdata as $bag): extract($bag);?>
 <?if($i > 4) {?>
       <td>
-	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=43"><img src="images/delete.gif"/>
+	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&itemid=<?=$itemid?>&action=43"><img src="images/delete.gif"/>
 	<? if($has_bag > 0 && $inventoryfree == 1){?>
 	<a onClick="return confirm('Are you sure you wish to move your <?=$name?> to your inventory?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=45"><img src="images/bag.jpg"/>
 	<?}?>
@@ -315,6 +316,31 @@
 </tr>
 </div>
 </table>
+<table style="width: 100%" cellpadding="5"> 		
+<div style="padding-top: 1px">  
+<tr>
+<?$i=1;?>
+<?foreach($bagdata as $bag): extract($bag);?>
+<?if($i > 8) {?>
+      <td>
+	<div class="topimg"><a onClick="return confirm('Are you sure you wish to discard your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&itemid=<?=$itemid?>&action=43"><img src="images/delete.gif"/>
+	<? if($has_bag > 0 && $inventoryfree == 1){?>
+	<a onClick="return confirm('Are you sure you wish to move your <?=$name?> to your inventory?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=45"><img src="images/bag.jpg"/>
+	<?}?>
+	</div>
+	<div class="botimg"><a onClick="return confirm('Are you sure you wish to drop your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=21"><img width=175 src="images/inventory/<?=$itemid?>.jpg" alt="<?=$itemid?> Image"/></a></td></div><?}?>
+<?if($i == 10){ break; }?>
+<?$i++;?>
+<?endforeach;?>
+
+<?if($bagcount > 7 && $bagcount < 10) {?>
+	<td>
+	<a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=38"><img width=175 src="images/inventory/draw.jpg" alt="New Image"/></a></td>
+<?}?>
+</tr>
+</div>
+</table>
+
 <br/><br/>
 
 </div>
