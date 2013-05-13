@@ -190,20 +190,20 @@ function load_followers($oppid) {
 
   $query = "SELECT count(*) AS count from games_inventory gi 
   INNER JOIN inventory i ON i.id = gi.itemid
-  WHERE i.type = 5 AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0";
+  WHERE i.type = 5 AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND gi.discarded = 0";
   $result = $mysql->query_assoc($query);
   $count = $result['count'];
 
   if($count > 1){
      $query = "SELECT gi.id,gi.itemid,gi.playerid,gi.gameid,i.name from games_inventory gi 
      INNER JOIN inventory i ON i.id = gi.itemid
-     WHERE i.type = 3 AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0";
+     WHERE i.type = 3 AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND gi.discarded = 0";
   }
   else
   {
      $query = "SELECT gi.id,gi.itemid,gi.playerid,gi.gameid,i.name from games_inventory gi 
      INNER JOIN inventory i ON i.id = gi.itemid
-     WHERE i.type in (3,5) AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0";
+     WHERE i.type in (3,5) AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND gi.discarded = 0";
   }
      $results = $mysql->query_mult_assoc($query);
 
@@ -217,7 +217,7 @@ function load_inventory($oppid) {
 
   $query = "SELECT sum(i.object) AS max from inventory i
   INNER join games_inventory gi ON gi.itemid = i.id
-  WHERE gi.playerid = $oppid AND gi.gameid = $gameid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND i.bag = 0";
+  WHERE gi.playerid = $oppid AND gi.gameid = $gameid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND i.bag = 0 AND gi.discarded = 0";
   $result = $mysql->query_assoc($query);
   $maxobjects = $result['max'];
 
@@ -231,14 +231,14 @@ function load_inventory($oppid) {
 
      $query = "SELECT gi.id,gi.itemid,gi.playerid,gi.gameid,i.name,gi.lost from games_inventory gi 
      INNER JOIN inventory i ON i.id = gi.itemid
-     WHERE i.type not in (3,5) AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND gi.inbag = 0 limit $maxobjs";
+     WHERE i.type not in (3,5) AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND gi.inbag = 0  AND gi.discarded = 0 limit $maxobjs";
      $results = $mysql->query_mult_assoc($query);
   }
   else
   {
      $query = "SELECT gi.id,gi.itemid,gi.playerid,gi.gameid,i.name,gi.lost from games_inventory gi 
      INNER JOIN inventory i ON i.id = gi.itemid
-     WHERE i.type not in (3,5) AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0  AND gi.inbag = 0 limit 4";
+     WHERE i.type not in (3,5) AND gi.gameid = $gameid AND gi.playerid = $oppid AND gi.charid = $ocharid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0  AND gi.inbag = 0  AND gi.discarded = 0 limit 4";
      $results = $mysql->query_mult_assoc($query);
   }
   return $results;
