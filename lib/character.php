@@ -1166,6 +1166,11 @@ function discard_inventory() {
   }
 
   if($itemid == 60){
+  	$query = "UPDATE games_spells SET discarded = 1 WHERE isfollower = $id AND gameid = $gameid AND playerid = $playerid AND charid = $charid";
+  	$mysql->query_no_result($query);
+  }
+
+  if($itemid == 62){
 	$query = "UPDATE games_players set life = max_life WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
   	$mysql->query_no_result($query);
   }
@@ -1179,10 +1184,6 @@ function discard_inventory() {
   $query = "UPDATE games_inventory set discarded = 1 WHERE followerid = $id AND gameid = $gameid AND playerid = $playerid AND charid = $charid";
   $mysql->query_no_result($query);
 
-  if($itemid == 60){
-  	$query = "UPDATE games_spells SET discarded = 1 WHERE isfollower = $id AND gameid = $gameid AND playerid = $playerid AND charid = $charid";
-  	$mysql->query_no_result($query);
-  }
 }
 
 function drop_inventory() {
