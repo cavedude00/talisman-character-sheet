@@ -78,6 +78,9 @@ function complete_quest(){
   $query = "UPDATE games_quests SET complete = 1 WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid AND questid = $questid";
   $mysql->query_no_result($query);
 
+  $query = "UPDATE games_inventory SET discarded = 1 WHERE itemid in (69,89) AND gameid = $gameid AND playerid = $playerid AND charid = $charid";
+  $mysql->query_no_result($query);
+
 }
 
 function load_quests() {

@@ -87,6 +87,7 @@
 	<?if($inventoryfree == 0){?>
 	<tr><td align="left"><a href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=50"><b>Draw an Over-The-Limit Item</b>&nbsp;&nbsp;</a></td></tr>
 	<?}?>
+	<? //print_r($objects);?>
 </table><br/><br/>
 <?endforeach;?>
 <?endforeach;?>
@@ -166,6 +167,7 @@
 	<?if($followerid > 0){?>
 	Follower Owned
 	<?}?>
+	</div>
 	<div class="botimg"><a onClick="return confirm('Are you sure you wish to drop your <?=$name?>?');" href="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&id=<?=$id?>&action=21"><img width=175 src="images/inventory/<?=$itemid?>.jpg" alt="<?=$itemid?> Image"/></a></td></div><?}?>
 <?if($i == 8){ break; }?>
 <?$i++;?>
