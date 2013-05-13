@@ -1,8 +1,11 @@
 <?if($isbag == 1){ $action = 39;} elseif($dropped == 1){ $action = 27;} else { $action = 23;}?>
-
-<?if($objects < 1){?>
+<? //print_r ($objects)?>
+<?$objectsize = sizeof($objects);?>
+<?if($objectsize < 1){?>
 <br/><br/><br/><center><div class='tab_title'><b><i>No available items!</b></i></div></center>
 <?}?>
+
+<?if($objectsize < 33 && $objectsize > 0){?>
 <div>
 <table style="width: 100%" cellpadding="5"> 		
 <div style="padding-top: 1px">  
@@ -121,4 +124,26 @@
 </tr>
 </div>
 </table>
-</div>
+</div?
+<?}?>
+<?if($objectsize > 32){?>
+<form name="emotes" method="post" action="index.php?editor=character&gameid=<?=$gameid?>&charid=<?=$charid?>&action=<?=$action?>">
+    <div class="edit_form" style="width: 200px;">
+      <div class="edit_form_header">
+        Add Object
+      </div>
+      <div class="edit_form_content">
+        <center>
+          <strong>Objects</strong><br>
+          <select name="objectid" style="width: 150px;">
+<?foreach($objects as $object): extract($object);?>
+                   <option value="<?=$id?>"<?echo ($id == $objectid)? " selected" : "";?>><?=$name?></option>
+<?endforeach;?>
+                 </select><br><br>
+        <center>
+          <input type="submit" value="Add">
+        </center>
+      </div>
+    </div>
+  </form>
+<?}?>
