@@ -41,6 +41,7 @@ switch ($action) {
                      $body->set('charid', $charid);
                      $body->set("alignments", $alignments);
                      $body->set("movements", $movements);
+			$body->set("dmovements", $dmovements);
 			$body->set("objects", $objects);
 			$body->set("chardata", get_character_data($gameid));
                      $body->set('inventorydata', load_inventory());
@@ -1062,7 +1063,7 @@ function has_dropped_items() {
 function load_inventory_bonuses() {
    global $mysql, $playerid, $gameid, $charid;
  
-   $query = "SELECT sum(i.object) AS objectbon, sum(i.strength) AS strbon, sum(i.craft) AS craftbon, max(i.movement) AS movebon, max(i.talisman) AS talbon, max(i.warhorse) AS warbon, sum(i.perm_strength) AS pstrbon, sum(i.perm_craft) AS pcraftbon from inventory i
+   $query = "SELECT sum(i.object) AS objectbon, sum(i.strength) AS strbon, sum(i.craft) AS craftbon, max(i.movement) AS movebon, max(i.dungeon_movement) AS dmovement, max(i.talisman) AS talbon, max(i.warhorse) AS warbon, sum(i.perm_strength) AS pstrbon, sum(i.perm_craft) AS pcraftbon, sum(i.dungeon_str) AS dstr, sum(i.dungeon_craft) AS dcraft from inventory i
    INNER join games_inventory gi ON gi.itemid = i.id
    WHERE gi.playerid = $playerid AND gi.gameid = $gameid AND gi.charid = $charid AND gi.lost = 0 AND gi.dropped = 0 AND gi.itemid > 0 AND gi.discarded = 0";
    $results = $mysql->query_mult_assoc($query);
@@ -1148,18 +1149,42 @@ function discard_inventory() {
   $id = $_GET['id'];
   $itemid = $_GET['itemid'];
 
+  $query = "SELECT count(*) as count from games_inventory where itemid = 202 AND lost = 0 AND dropped = 0 AND discarded = 0 AND gameid = $gameid AND playerid = $playerid AND charid = $charid";
+  $result = $mysql->query_assoc($query);
+  $diablo = $result['count'];
+
+  if($diablo > 0){
+	$query = "SELECT type FROM inventory WHERE id = $itemid";
+	$result = $mysql->query_assoc($query);
+  	$type = $result['type'];
+
+	if($type == 3){
+		choose_random_spell($playerid, $gameid, $charid);
+	}
+  }
+
   if($itemid == 53){
 	$query = "UPDATE games_quests set discarded = 1 WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid AND complete = 0";
   	$mysql->query_no_result($query);
   }
 
-  if($itemid == 54 || $itemid == 55){
+  if($itemid == 54 || $itemid == 55 || $itemid == 183){
+	$query = "SELECT count(*) as count from games_inventory where itemid = 198 AND lost = 0 AND dropped = 0 AND discarded = 0 AND gameid = $gameid AND playerid = $playerid AND charid = $charid";
+  	$result = $mysql->query_assoc($query);
+  	$count = $result['count'];
+
 	$gold = 0;
-	if($itemid == 54){
-		$gold = 1;
+	if($count > 0){
+		$gold = $gold+2;
 	}
-	else{
-		$gold = 2;
+	if($itemid == 54){
+		$gold = $gold+1;
+	}
+	if($itemid == 55){
+		$gold = $gold+2;
+	}
+	if($itemid == 183){
+		$gold = $gold+3;
 	}
 	$query = "UPDATE games_players set gold = gold+$gold WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
   	$mysql->query_no_result($query);
@@ -1173,6 +1198,14 @@ function discard_inventory() {
   if($itemid == 62){
 	$query = "UPDATE games_players set life = max_life WHERE gameid = $gameid AND playerid = $playerid AND charid = $charid";
   	$mysql->query_no_result($query);
+  }
+	
+  if($itemid == 110){
+	draw_all_spells();
+  }
+
+  if($itemid == 150){
+	choose_random_spell($playerid, $gameid, $charid);
   }
 	
   $query = "UPDATE games_inventory set discarded = 1 WHERE id = $id AND gameid = $gameid AND playerid = $playerid AND charid = $charid";
@@ -1832,33 +1865,47 @@ function discard_spell() {
   $spellid = $_GET['spellid'];
   $follower = $_GET['follower'];
 
+  $query = "SELECT count(*) AS amulet FROM games_inventory WHERE itemid = 127 AND gameid = $gameid AND playerid = $playerid AND charid = $charid AND discarded = 0 AND lost = 0 AND dropped = 0";
+  $result = $mysql->query_assoc($query);
+  $amulet = $result['amulet']; 
+
+  if($amulet > 0){
+	return 0;
+  }
+
+  $query = "SELECT count(*) AS count FROM games_inventory WHERE itemid = 100 AND gameid = $gameid AND playerid = $playerid AND charid = $charid AND discarded = 0 AND lost = 0 AND dropped = 0";
+  $result = $mysql->query_assoc($query);
+  $item = $result['count']; 
+
   $query = "UPDATE games_spells SET discarded = 1 WHERE spellid = $spellid AND gameid = $gameid AND playerid = $playerid AND charid = $charid AND discarded = 0 limit 1";
   $mysql->query_no_result($query);
 
-  if($charid == 17 || $charid == 27)
-  {
-	$count = get_spell_count();
-	if($count == 0){
+  if($follower < 1){
+  	if($charid == 17 || $charid == 27 || $item > 0)
+  	{
+		$count = get_spell_count();
+		if($count == 0){
+			choose_random_spell($playerid, $gameid, $charid);
+		}
+  	}
+  	if($charid == 25 || $charid == 37){
 		choose_random_spell($playerid, $gameid, $charid);
-	}
-  }
-  if($charid == 25 || $charid == 37){
-	choose_random_spell($playerid, $gameid, $charid);
-  }
-  if($charid == 29)
-  {
-	$count = get_spell_count();
-	if($count == 0){
-		choose_random_spell($playerid, $gameid, $charid);
-		choose_random_spell($playerid, $gameid, $charid);
+  	}
+  	if($charid == 29)
+  	{
+		$count = get_spell_count();
+		if($count == 0){
+			choose_random_spell($playerid, $gameid, $charid);
+			choose_random_spell($playerid, $gameid, $charid);
 
-	}
-       elseif($count == 1){
-		choose_random_spell($playerid, $gameid, $charid);
-	}
-  }
-  if($charid == 35){
-	draw_all_spells();
+		}
+       	elseif($count == 1){
+			choose_random_spell($playerid, $gameid, $charid);
+		}
+  	}
+  	if($charid == 35){
+		draw_all_spells();
+  	}
   }
 
    if($follower > 0){

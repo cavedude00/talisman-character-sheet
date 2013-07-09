@@ -33,7 +33,7 @@
       <tr><td align="left">Fate: <b><?=$fate?></b><br/><br/></td></tr>
 
       <?if($toad == 1) {?>
-      <tr><td align="left">Movement: <b><?=$movements[4]?></b></td></tr>
+      <tr><td align="left">Movement: <b><?=$movements[5]?></b></td></tr>
       <?}?>
       <?if($toad == 0) { if($movement < $movebon) {?>
       <tr><td align="left">Movement: <b><?=$movements[$movebon]?></b></td></tr>

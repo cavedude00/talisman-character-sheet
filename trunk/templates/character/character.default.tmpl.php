@@ -47,16 +47,23 @@
       
       <tr><td align="left"><b>Combat Strength: <?=$combat_str?></b> &nbsp;&nbsp;</td></tr>
       <tr><td align="left"><b>Combat Craft: <?=$combat_craft?></b> &nbsp;&nbsp;<br/><br/></td></tr>
+      <tr><td align="left"><b>Dungeon Strength: <?=$dstr?></b> &nbsp;&nbsp;</td></tr>
+      <tr><td align="left"><b>Dungeon Craft: <?=$dcraft?></b> &nbsp;&nbsp;<br/><br/></td></tr>
       <?}?>
 
       <?if($toad == 1) {?>
-      <tr><td align="left">Movement: <b><?=$movements[4]?></b></td></tr>
+      <tr><td align="left">Movement: <b><?=$movements[5]?></b></td></tr>
       <?}?>
       <?if($toad == 0) { if($movement < $movebon) {?>
       <tr><td align="left">Movement: <b><?=$movements[$movebon]?></b></td></tr>
       <?} else {?>
       <tr><td align="left">Movement: <b><?=$movements[$movement]?></b></td></tr>
       <?}}?>
+      <?if($toad == 1) {?>
+      <tr><td align="left">Dungeon Movement: <b><?=$dmovements[5]?></b></td></tr>
+      <?} else { $dmovement_ = $dmovement + 0;?>
+      <tr><td align="left">Dungeon Movement: <b><?=$dmovements[$dmovement_]?></b></td></tr>
+      <?}?>
       <tr><td align="left">Start: <b><?=$start?></b></td></tr>
 </table><br/>
 <table style="border: 1px solid black; background-color: #CCC;">
