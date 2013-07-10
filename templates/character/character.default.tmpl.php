@@ -46,9 +46,9 @@
       $combat_craft = $totalcraft+$craftbon;?>
       
       <tr><td align="left"><b>Combat Strength: <?=$combat_str?></b> &nbsp;&nbsp;</td></tr>
-      <tr><td align="left"><b>Combat Craft: <?=$combat_craft?></b> &nbsp;&nbsp;<br/><br/></td></tr>
-      <tr><td align="left"><b>Dungeon Strength: <?=$dstr?></b> &nbsp;&nbsp;</td></tr>
-      <tr><td align="left"><b>Dungeon Craft: <?=$dcraft?></b> &nbsp;&nbsp;<br/><br/></td></tr>
+      <tr><td align="left"><b>Combat Craft: <?=$combat_craft?></b> &nbsp;&nbsp;</td></tr>
+      <tr><td align="left"><b>Dungeon Strength: <?=$dstr+$combat_str?></b> &nbsp;&nbsp;</td></tr>
+      <tr><td align="left"><b>Dungeon Craft: <?=$dcraft+$combat_craft?></b> &nbsp;&nbsp;<br/><br/></td></tr>
       <?}?>
 
       <?if($toad == 1) {?>
